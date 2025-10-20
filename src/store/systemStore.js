@@ -1,7 +1,6 @@
 import { create } from "zustand";
 
 const initialDrives = () => {
-  // if drives in localStorage, return parsed
   try {
     const saved = localStorage.getItem("wb_drives");
     if (saved) return JSON.parse(saved);
@@ -19,7 +18,8 @@ export const useSystemStore = create((set, get) => ({
   startOpen: false,
   theme: "dark",
   drives: initialDrives(),
-  projects: JSON.parse(localStorage.getItem("wb_projects") || "[]"), // server/project entries
+  projects: JSON.parse(localStorage.getItem("wb_projects") || "[]"),
+  zIndexCounter: 1, // Added for window stacking
 
   setOS: (os) => set({ osLoaded: true, wallpaper: os.wallpaper, theme: os.theme?.background ? "dark" : "dark" }),
   setWallpaper: (url) => {
@@ -39,11 +39,29 @@ export const useSystemStore = create((set, get) => ({
     const apps = get().openApps;
     const id = Date.now();
     const pos = { x: 80 + (apps.length * 20), y: 80 + (apps.length * 20) };
-    set({ openApps: [...apps, { id, name, position: pos, size: { w: 640, h: 420 } }] });
+    const zIndex = get().zIndexCounter + 1;
+    set({ 
+      openApps: [...apps, { id, name, position: pos, size: { w: 640, h: 420 }, zIndex }], 
+      zIndexCounter: zIndex 
+    });
   },
 
   closeApp: (id) => set((s) => ({ openApps: s.openApps.filter(a => a.id !== id) })),
   toggleStart: () => set((s) => ({ startOpen: !s.startOpen })),
+
+  bringToFront: (id) => {
+    set((s) => {
+      const newZ = s.zIndexCounter + 1;
+      const apps = s.openApps.map(a => a.id === id ? { ...a, zIndex: newZ } : a);
+      return { openApps: apps, zIndexCounter: newZ };
+    });
+  },
+
+  updateAppPosition: (id, position) => {
+    set((s) => ({
+      openApps: s.openApps.map(a => a.id === id ? { ...a, position } : a)
+    }));
+  },
 
   refreshDrives: () => {
     const d = get().drives;
