@@ -1,0 +1,75 @@
+:root{
+  --accent: #0078d7;
+  --bg-dark: #0b1020;
+  --bg-light: #f5f7fb;
+  --text-dark: #e6eef8;
+  --text-light: #0b1020;
+}
+
+/* Reset */
+* { box-sizing: border-box; }
+
+html,body,#root { height:100%; margin:0; font-family: Inter, system-ui, "Segoe UI", Roboto, Arial; }
+
+body {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+/* Desktop */
+.desktop {
+  position:fixed; inset:0; overflow:hidden;
+  background-size:cover;
+  background-position:center;
+}
+
+/* Start menu / taskbar / windows basics */
+.taskbar {
+  position:fixed;
+  left:0; right:0; bottom:0;
+  height:48px;
+  display:flex; align-items:center;
+  gap:8px;
+  padding:0 12px;
+  background: rgba(8,10,15,0.7);
+  backdrop-filter: blur(6px);
+  border-top: 1px solid rgba(255,255,255,0.03);
+}
+
+.start-menu {
+  position:fixed; left:16px; bottom:64px;
+  background: rgba(10,12,18,0.95);
+  color:var(--text-dark);
+  width:320px; border-radius:8px; padding:12px;
+  box-shadow: 0 12px 40px rgba(2,6,23,0.7);
+}
+
+/* Window */
+.window {
+  position:absolute;
+  background: linear-gradient(180deg, rgba(14,16,22,0.98), rgba(10,12,16,0.98));
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius:8px;
+  overflow:hidden;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+}
+
+.window .titlebar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 10px; background: rgba(12,14,18,0.7);
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+  cursor: move;
+}
+
+.window .content { padding:12px; color:var(--text-dark); height: calc(100% - 40px); overflow:auto; }
+
+/* Small UI helpers */
+.btn { background: rgba(255,255,255,0.03); padding:6px 10px; border-radius:6px; color:var(--text-dark); border: none; cursor: pointer; }
+.btn:hover { background: rgba(255,255,255,0.05); }
+
+.icon { width:48px; height:48px; display:block; }
+.desktop-icon { width:64px; text-align:center; color:var(--text-dark); cursor:pointer; user-select:none; }
+.desktop-icon img{ width:48px; height:48px; display:block; margin:0 auto; }
+
+/* Terminal monospace */
+.terminal { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; font-size:13px; color:#bfe6b2; background:#020202; padding:8px; border-radius:6px; }

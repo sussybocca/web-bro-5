@@ -1,0 +1,6 @@
+{
+  "name": "Sample OS",
+  "wallpaper": "/wallpapers/default.jpg",
+  "theme": "/sample-os/theme.json",
+  "apps": ["Explorer", "Settings", "Terminal"]
+}
