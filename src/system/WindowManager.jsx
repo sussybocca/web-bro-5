@@ -6,7 +6,6 @@ import Terminal from "../apps/Terminal";
 import ProjectPublisher from "../components/ProjectPublisher";
 import Store from "../apps/Store"; // Web Bro Web Store
 import WebBoe from "../apps/WebBoe"; // WebBoe Browser
-import FireBox from "../apps/FireBox"; // FireBox App
 
 export default function WindowManager() {
   const { openApps, closeApp, bringToFront, updateAppPosition } = useSystemStore();
@@ -26,15 +25,13 @@ export default function WindowManager() {
         return <Store />;
       case "WebBoe Browser":
         return <WebBoe />;
-      case "FireBox":
-        return <FireBox />; // <-- FireBox integration
       default:
         return <div>Unknown App</div>;
     }
   };
 
   const handleMouseDown = (e, app) => {
-    bringToFront(app.id); // Bring window to front
+    bringToFront(app.id);
     dragRefs.current[app.id] = {
       offsetX: e.clientX - app.position.x,
       offsetY: e.clientY - app.position.y,
@@ -44,8 +41,7 @@ export default function WindowManager() {
   };
 
   const handleMouseMove = (e) => {
-    Object.keys(dragRefs.current).forEach((id) => {
-      const drag = dragRefs.current[id];
+    Object.entries(dragRefs.current).forEach(([id, drag]) => {
       if (drag) {
         const x = e.clientX - drag.offsetX;
         const y = e.clientY - drag.offsetY;
