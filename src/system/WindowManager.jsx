@@ -6,6 +6,8 @@ import Terminal from "../apps/Terminal";
 import ProjectPublisher from "../components/ProjectPublisher";
 import Store from "../apps/Store"; // Web Bro Web Store
 import WebBoe from "../apps/WebBoe"; // WebBoe Browser
+import FireBox from "../apps/FireBox"; // FireBox
+import Betas from "../apps/Betas"; // <-- Import Betas
 
 export default function WindowManager() {
   const { openApps, closeApp, bringToFront, updateAppPosition } = useSystemStore();
@@ -25,6 +27,10 @@ export default function WindowManager() {
         return <Store />;
       case "WebBoe Browser":
         return <WebBoe />;
+      case "FireBox":
+        return <FireBox />;
+      case "Betas": // <-- Add Betas app
+        return <Betas />;
       default:
         return <div>Unknown App</div>;
     }
