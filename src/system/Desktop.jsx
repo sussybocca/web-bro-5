@@ -1,6 +1,3 @@
-import React from "react";
-import { useSystemStore } from "../store/systemStore";
-
 export default function Desktop() {
   const { wallpaper, openApp, desktopApps } = useSystemStore();
 
@@ -37,6 +34,4 @@ export default function Desktop() {
       </div>
     </div>
   );
-}
-
 }
