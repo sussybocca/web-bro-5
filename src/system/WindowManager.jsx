@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
 import { useSystemStore } from "../store/systemStore";
 import Explorer from "../apps/Explorer";
 import Settings from "../apps/Settings";
@@ -6,16 +6,21 @@ import Terminal from "../apps/Terminal";
 import ProjectPublisher from "../components/ProjectPublisher";
 
 export default function WindowManager() {
-  const { openApps, closeApp, bringToFront } = useSystemStore();
-  const dragRefs = useRef({}); // Track drag positions
+  const { openApps, closeApp, bringToFront, updateAppPosition } = useSystemStore();
+  const dragRefs = useRef({}); // Track dragging state per window
 
   const renderApp = (name) => {
     switch (name) {
-      case "Explorer": return <Explorer />;
-      case "Settings": return <Settings />;
-      case "Terminal": return <Terminal />;
-      case "Project Publisher": return <ProjectPublisher />;
-      default: return <div>Unknown App</div>;
+      case "Explorer":
+        return <Explorer />;
+      case "Settings":
+        return <Settings />;
+      case "Terminal":
+        return <Terminal />;
+      case "Project Publisher":
+        return <ProjectPublisher />;
+      default:
+        return <div>Unknown App</div>;
     }
   };
 
@@ -30,24 +35,12 @@ export default function WindowManager() {
   };
 
   const handleMouseMove = (e) => {
-    const updatedApps = openApps.map(app => {
-      const drag = dragRefs.current[app.id];
+    Object.keys(dragRefs.current).forEach((id) => {
+      const drag = dragRefs.current[id];
       if (drag) {
-        return {
-          ...app,
-          position: {
-            x: e.clientX - drag.offsetX,
-            y: e.clientY - drag.offsetY,
-          },
-        };
-      }
-      return app;
-    });
-    // Update store positions
-    updatedApps.forEach(app => {
-      const drag = dragRefs.current[app.id];
-      if (drag) {
-        app.position = updatedApps.find(a => a.id === app.id).position;
+        const x = e.clientX - drag.offsetX;
+        const y = e.clientY - drag.offsetY;
+        updateAppPosition(Number(id), { x, y });
       }
     });
   };
@@ -60,7 +53,7 @@ export default function WindowManager() {
 
   return (
     <>
-      {openApps.map(app => (
+      {openApps.map((app) => (
         <div
           key={app.id}
           className="window"
@@ -83,9 +76,7 @@ export default function WindowManager() {
               <button className="btn" onClick={() => closeApp(app.id)}>✖</button>
             </div>
           </div>
-          <div className="content">
-            {renderApp(app.name)}
-          </div>
+          <div className="content">{renderApp(app.name)}</div>
         </div>
       ))}
     </>
