@@ -1,45 +1,60 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 
 export default function WebBoe() {
-  const [url, setUrl] = useState("https://www.google.com");
-  const [currentUrl, setCurrentUrl] = useState(url);
-  const iframeRef = useRef(null);
+  const [query, setQuery] = useState("");
+  const [url, setUrl] = useState("https://search.menfino.org/");
 
-  const handleNavigate = () => {
-    let formatted = url;
-    if (!/^https?:\/\//i.test(url)) {
-      formatted = "https://www.google.com/search?q=" + encodeURIComponent(url);
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // If user enters a full URL starting with http, load directly
+    if (query.startsWith("http://") || query.startsWith("https://")) {
+      setUrl(query);
+    } else {
+      // Otherwise, use the search engine with the query
+      setUrl(`https://search.menfino.org/?q=${encodeURIComponent(query)}`);
     }
-    setCurrentUrl(formatted);
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") handleNavigate();
-  };
-
-  const reload = () => {
-    if (iframeRef.current) iframeRef.current.src = currentUrl;
   };
 
   return (
-    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "flex", padding: 8, background: "#0d1a2a", alignItems: "center" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <form
+        onSubmit={handleSearch}
+        style={{ display: "flex", padding: 8, background: "#0d1a2a" }}
+      >
         <input
           type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Enter URL or search..."
-          style={{ flex: 1, padding: 6, borderRadius: 4, border: "1px solid #333", marginRight: 8 }}
+          placeholder="Search or enter URL..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          style={{
+            flex: 1,
+            padding: 8,
+            borderRadius: 4,
+            border: "1px solid #333",
+            background: "#05101a",
+            color: "#e6eef6",
+          }}
         />
-        <button onClick={handleNavigate} style={{ marginRight: 4 }}>Go</button>
-        <button onClick={reload}>Reload</button>
-      </div>
+        <button
+          type="submit"
+          style={{
+            marginLeft: 8,
+            padding: "8px 16px",
+            borderRadius: 4,
+            background: "#1e2a44",
+            color: "#e6eef6",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Go
+        </button>
+      </form>
+
       <iframe
-        ref={iframeRef}
-        src={currentUrl}
-        style={{ flex: 1, border: "none" }}
+        src={url}
         title="WebBoe Browser"
+        style={{ flex: 1, border: "none" }}
       />
     </div>
   );
