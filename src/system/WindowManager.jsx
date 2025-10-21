@@ -4,23 +4,25 @@ import Explorer from "../apps/Explorer";
 import Settings from "../apps/Settings";
 import Terminal from "../apps/Terminal";
 import ProjectPublisher from "../components/ProjectPublisher";
-import Store from "../apps/Store"; // <-- Import Store
+import Store from "../apps/Store"; // Web Store
 
 export default function WindowManager() {
-  const { openApps, closeApp, bringToFront, updateAppPosition } = useSystemStore();
+  const { openApps, closeApp, bringToFront, updateAppPosition, betas } = useSystemStore();
   const dragRefs = useRef({}); // Track dragging state per window
 
   const renderApp = (name) => {
     switch (name) {
       case "Explorer":
         return <Explorer />;
+      case "Betas": // Open Explorer with beta apps
+        return <Explorer folderContent={betas} title="Betas" />;
       case "Settings":
         return <Settings />;
       case "Terminal":
         return <Terminal />;
       case "Project Publisher":
         return <ProjectPublisher />;
-      case "Web Bro Web Store": // <-- Add the store app here
+      case "Web Bro Web Store":
         return <Store />;
       default:
         return <div>Unknown App</div>;
