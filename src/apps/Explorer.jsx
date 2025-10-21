@@ -1,64 +1,65 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useSystemStore } from "../store/systemStore";
 
 export default function Explorer() {
-  // Basic drives with sample files
-  const [drives, setDrives] = useState({
-    C: ["Program Files", "Users", "Windows"],
-    D: ["Documents", "Games", "Movies"],
-  });
+  const { drives, createFolder, createFile, readFile } = useSystemStore();
   const [currentDrive, setCurrentDrive] = useState("C");
-  const [currentFolder, setCurrentFolder] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [fileContent, setFileContent] = useState("");
 
-  const files = drives[currentDrive];
-
-  const openFolder = (folder) => {
-    setCurrentFolder(folder);
+  const handleCreateFolder = () => {
+    const name = prompt("Enter folder name:");
+    if (name) createFolder(currentDrive, name);
   };
 
-  const goBack = () => {
-    setCurrentFolder("");
+  const handleCreateFile = () => {
+    const name = prompt("Enter file name:");
+    if (!name) return;
+    const content = prompt("Enter initial content:");
+    createFile(currentDrive, name, content || "");
+  };
+
+  const handleOpenFile = (name) => {
+    const content = readFile(currentDrive, name);
+    setSelectedFile(name);
+    setFileContent(content || "");
   };
 
   return (
-    <div className="text-white p-4">
-      <h2 className="text-xl font-semibold mb-2">File Explorer</h2>
+    <div className="text-white p-3 font-mono">
+      <h2 className="text-xl font-semibold mb-2">Explorer</h2>
 
       <div className="mb-2">
-        <label>Select Drive: </label>
-        <select
-          value={currentDrive}
-          onChange={(e) => {
-            setCurrentDrive(e.target.value);
-            setCurrentFolder("");
-          }}
-          className="bg-gray-800 text-white p-1 rounded"
-        >
-          {Object.keys(drives).map((drive) => (
-            <option key={drive} value={drive}>{drive}:</option>
+        <label className="mr-2">Drive:</label>
+        <select value={currentDrive} onChange={(e) => setCurrentDrive(e.target.value)}>
+          {Object.keys(drives).map((d) => (
+            <option key={d} value={d}>{d}:</option>
           ))}
         </select>
       </div>
 
-      {currentFolder && (
-        <button onClick={goBack} className="mb-2 px-2 py-1 bg-gray-700 rounded">
-          ⬅ Back
-        </button>
-      )}
+      <div className="mb-2 flex gap-2">
+        <button className="btn" onClick={handleCreateFolder}>New Folder</button>
+        <button className="btn" onClick={handleCreateFile}>New File</button>
+      </div>
 
-      <ul>
-        {files.map((file) => (
-          <li
-            key={file}
-            onClick={() => openFolder(file)}
-            className="cursor-pointer hover:bg-gray-700 p-1 rounded"
-          >
-            {file}
-          </li>
-        ))}
-      </ul>
+      <div className="mb-4">
+        <h3 className="font-semibold">Contents of {currentDrive}:</h3>
+        <ul className="ml-4">
+          {drives[currentDrive].map((item, i) => (
+            <li key={i} className="cursor-pointer" onClick={() => item.type === "file" && handleOpenFile(item.name)}>
+              {item.type === "dir" ? "📁 " : "📄 "}
+              {item.name}
+            </li>
+          ))}
+        </ul>
+      </div>
 
-      {currentFolder && (
-        <div className="mt-2 text-gray-400">Inside: {currentFolder}</div>
+      {selectedFile && (
+        <div>
+          <h3 className="font-semibold">Viewing file: {selectedFile}</h3>
+          <pre className="bg-[#05101a] p-2 rounded">{fileContent}</pre>
+        </div>
       )}
     </div>
   );
