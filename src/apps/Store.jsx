@@ -112,19 +112,16 @@ const appTemplates = {
 };
 
 export default function Store() {
-  const { openApp } = useSystemStore();
+  const { addDesktopApp } = useSystemStore(); // Add desktop installation
   const [search, setSearch] = useState("");
 
-  // Generate hundreds of apps dynamically
   const apps = useMemo(() => {
     const generated = [];
     for (let i = 0; i < 50; i++) {
-      // Each iteration generates 3 apps
       generated.push(appTemplates.filter(generateUniqueName("filter")));
       generated.push(appTemplates.social(generateUniqueName("social")));
       generated.push(appTemplates.video(generateUniqueName("video")));
     }
-    // Filter by search
     return generated.filter(
       (app) =>
         app.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -157,7 +154,7 @@ export default function Store() {
               padding: 8,
               cursor: "pointer",
             }}
-            onDoubleClick={() => openApp(app.name)}
+            onDoubleClick={() => addDesktopApp(app)} // Install to desktop
           >
             <img src={app.icon} alt={app.name} style={{ width: 48, height: 48 }} />
             <div style={{ marginTop: 8, fontSize: 13 }}>{app.name}</div>
