@@ -2,40 +2,29 @@ import React, { useState } from "react";
 
 export default function WebBoe() {
   const [query, setQuery] = useState("");
-  const [searchURL, setSearchURL] = useState("");
+  const searxInstance = "https://searx.tiekoetter.com/search?q="; // public Searx instance
 
   const handleSearch = () => {
-    if (!query) return;
-    // Using a public Searx instance
-    setSearchURL(`https://searx.tiekoetter.com/?q=${encodeURIComponent(query)}`);
+    if (query) window.open(`${searxInstance}${encodeURIComponent(query)}`, "_blank");
   };
 
   return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: 12, background: "#0b1220", display: "flex", gap: 8 }}>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search the web..."
-          style={{ flex: 1, padding: 6, borderRadius: 4 }}
-        />
-        <button onClick={handleSearch} style={{ padding: "6px 12px" }}>
-          Search
-        </button>
-      </div>
-
-      {searchURL ? (
-        <iframe
-          src={searchURL}
-          title="WebBoe Search"
-          style={{ flex: 1, border: "none", width: "100%" }}
-        />
-      ) : (
-        <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", color: "#9fb3d8" }}>
-          Enter a query and press Search
-        </div>
-      )}
+    <div style={{ padding: 16, background: "#0b1220", color: "#e6eef6", height: "100%" }}>
+      <h2>WebBoe Browser</h2>
+      <input
+        type="text"
+        placeholder="Search the web..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        style={{ width: "70%", padding: 8, borderRadius: 4, marginRight: 8 }}
+      />
+      <button
+        onClick={handleSearch}
+        style={{ padding: "8px 16px", borderRadius: 4, background: "#2d6cdf", color: "white" }}
+      >
+        Search
+      </button>
+      <p style={{ marginTop: 16 }}>Results will open in a new tab.</p>
     </div>
   );
 }
