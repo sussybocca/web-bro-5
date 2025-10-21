@@ -4,24 +4,19 @@ import Explorer from "../apps/Explorer";
 import Settings from "../apps/Settings";
 import Terminal from "../apps/Terminal";
 import ProjectPublisher from "../components/ProjectPublisher";
-import Store from "../apps/Store"; // <-- Store app
+import Store from "../apps/Store";
 
 export default function WindowManager() {
-  const {
-    openApps,
-    closeApp,
-    bringToFront,
-    updateAppPosition,
-    desktopApps, // <-- dynamically installed apps
-  } = useSystemStore();
+  const { openApps, closeApp, bringToFront, updateAppPosition, desktopApps } = useSystemStore();
+  const dragRefs = useRef({});
 
-  const dragRefs = useRef({}); // Track dragging state per window
-
-  // Render both built-in and desktop-installed apps
+  // Render apps dynamically
   const renderApp = (name) => {
-    const desktopApp = desktopApps.find((a) => a.name === name);
-    if (desktopApp) return <desktopApp.component />;
+    // Check desktop apps first
+    const desktopApp = desktopApps.find(a => a.name === name);
+    if (desktopApp && desktopApp.component) return <desktopApp.component />;
 
+    // Fallback to built-in apps
     switch (name) {
       case "Explorer":
         return <Explorer />;
@@ -39,7 +34,7 @@ export default function WindowManager() {
   };
 
   const handleMouseDown = (e, app) => {
-    bringToFront(app.id); // Bring window to front
+    bringToFront(app.id);
     dragRefs.current[app.id] = {
       offsetX: e.clientX - app.position.x,
       offsetY: e.clientY - app.position.y,
