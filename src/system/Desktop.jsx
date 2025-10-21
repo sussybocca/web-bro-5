@@ -9,7 +9,9 @@ export default function Desktop() {
     { name: "Settings", icon: "/icons/settings.svg" },
     { name: "Terminal", icon: "/icons/terminal.svg" },
     { name: "Project Publisher", icon: "/icons/project.svg" },
-    { name: "Web Bro Web Store", icon: "/icons/store.svg" } // <-- Store icon
+    { name: "Web Bro Web Store", icon: "/icons/store.svg" },
+    { name: "WebBoe Browser", icon: "/icons/browser.svg" }, // <-- WebBoe icon
+    { name: "Betas", icon: "/icons/betas-folder.svg" }      // <-- Betas folder icon
   ];
 
   return (
