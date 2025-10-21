@@ -4,6 +4,7 @@ import Explorer from "../apps/Explorer";
 import Settings from "../apps/Settings";
 import Terminal from "../apps/Terminal";
 import ProjectPublisher from "../components/ProjectPublisher";
+import Store from "../apps/Store"; // <-- Added Store
 
 export default function WindowManager() {
   const { openApps, closeApp, bringToFront, updateAppPosition } = useSystemStore();
@@ -19,6 +20,8 @@ export default function WindowManager() {
         return <Terminal />;
       case "Project Publisher":
         return <ProjectPublisher />;
+      case "Store": // <-- Added case for Store
+        return <Store />;
       default:
         return <div>Unknown App</div>;
     }
