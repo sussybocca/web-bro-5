@@ -4,13 +4,24 @@ import Explorer from "../apps/Explorer";
 import Settings from "../apps/Settings";
 import Terminal from "../apps/Terminal";
 import ProjectPublisher from "../components/ProjectPublisher";
-import Store from "../apps/Store"; // <-- Import Store
+import Store from "../apps/Store"; // <-- Store app
 
 export default function WindowManager() {
-  const { openApps, closeApp, bringToFront, updateAppPosition } = useSystemStore();
+  const {
+    openApps,
+    closeApp,
+    bringToFront,
+    updateAppPosition,
+    desktopApps, // <-- dynamically installed apps
+  } = useSystemStore();
+
   const dragRefs = useRef({}); // Track dragging state per window
 
+  // Render both built-in and desktop-installed apps
   const renderApp = (name) => {
+    const desktopApp = desktopApps.find((a) => a.name === name);
+    if (desktopApp) return <desktopApp.component />;
+
     switch (name) {
       case "Explorer":
         return <Explorer />;
@@ -20,7 +31,7 @@ export default function WindowManager() {
         return <Terminal />;
       case "Project Publisher":
         return <ProjectPublisher />;
-      case "Web Bro Web Store": // <-- Add the store app here
+      case "Web Bro Web Store":
         return <Store />;
       default:
         return <div>Unknown App</div>;
