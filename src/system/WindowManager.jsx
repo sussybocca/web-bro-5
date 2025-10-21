@@ -5,7 +5,8 @@ import Settings from "../apps/Settings";
 import Terminal from "../apps/Terminal";
 import ProjectPublisher from "../components/ProjectPublisher";
 import Store from "../apps/Store"; // Web Bro Web Store
-import WebBoe from "../apps/WebBoe"; // <-- Import WebBoe
+import WebBoe from "../apps/WebBoe"; // WebBoe Browser
+import FireBox from "../apps/FireBox"; // FireBox App
 
 export default function WindowManager() {
   const { openApps, closeApp, bringToFront, updateAppPosition } = useSystemStore();
@@ -23,8 +24,10 @@ export default function WindowManager() {
         return <ProjectPublisher />;
       case "Web Bro Web Store":
         return <Store />;
-      case "WebBoe Browser": // <-- Add WebBoe app here
+      case "WebBoe Browser":
         return <WebBoe />;
+      case "FireBox":
+        return <FireBox />; // <-- FireBox integration
       default:
         return <div>Unknown App</div>;
     }
