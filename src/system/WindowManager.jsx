@@ -4,18 +4,17 @@ import Explorer from "../apps/Explorer";
 import Settings from "../apps/Settings";
 import Terminal from "../apps/Terminal";
 import ProjectPublisher from "../components/ProjectPublisher";
-import Store from "../apps/Store"; // Web Store
+import Store from "../apps/Store"; // Web Bro Web Store
+import WebBoe from "../apps/WebBoe"; // <-- Import WebBoe
 
 export default function WindowManager() {
-  const { openApps, closeApp, bringToFront, updateAppPosition, betas } = useSystemStore();
+  const { openApps, closeApp, bringToFront, updateAppPosition } = useSystemStore();
   const dragRefs = useRef({}); // Track dragging state per window
 
   const renderApp = (name) => {
     switch (name) {
       case "Explorer":
         return <Explorer />;
-      case "Betas": // Open Explorer with beta apps
-        return <Explorer folderContent={betas} title="Betas" />;
       case "Settings":
         return <Settings />;
       case "Terminal":
@@ -24,6 +23,8 @@ export default function WindowManager() {
         return <ProjectPublisher />;
       case "Web Bro Web Store":
         return <Store />;
+      case "WebBoe Browser": // <-- Add WebBoe app here
+        return <WebBoe />;
       default:
         return <div>Unknown App</div>;
     }
