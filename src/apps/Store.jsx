@@ -1,51 +1,98 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { useSystemStore } from "../store/systemStore";
-
-// Categories for auto-generated apps
-const categories = ["Filter Apps", "Social Platform", "Videos"];
-
-// Utility to generate random apps
-const generateApps = (count = 100) => {
-  const apps = [];
-  for (let i = 0; i < count; i++) {
-    const category = categories[Math.floor(Math.random() * categories.length)];
-    apps.push({
-      id: Date.now() + i,
-      name: `${category} App ${i + 1}`,
-      category,
-      description: `This is ${category} App ${i + 1}`,
-    });
-  }
-  return apps;
-};
 
 export default function Store() {
   const { openApp } = useSystemStore();
-  const [apps, setApps] = useState([]);
-  const [filter, setFilter] = useState("All");
+  const [category, setCategory] = useState("All");
 
-  useEffect(() => {
-    setApps(generateApps(150)); // auto-generate 150 apps
-  }, []);
+  // Categories of apps
+  const categories = ["All", "Utilities", "Social", "Video"];
 
-  const filteredApps = filter === "All" ? apps : apps.filter((a) => a.category === filter);
+  // Auto-generate apps
+  const apps = useMemo(() => {
+    const generated = [];
+    const totalApps = 50; // Example: 50 apps generated
+    for (let i = 1; i <= totalApps; i++) {
+      const cat = ["Utilities", "Social", "Video"][i % 3];
+      generated.push({
+        id: i,
+        name: `${cat} App ${i}`,
+        category: cat,
+        icon: `/icons/app-${(i % 8) + 1}.svg`, // Make sure these icons exist
+        description: `This is ${cat} App ${i}, a fully functional auto-generated app.`,
+      });
+    }
+    return category === "All" ? generated : generated.filter(a => a.category === category);
+  }, [category]);
 
   return (
-    <div className="text-white p-4">
-      <h2 className="text-xl font-bold mb-3">Web Bro Web Store</h2>
+    <div style={{ padding: 16, color: "#fff", overflowY: "auto", height: "100%" }}>
+      <h2 style={{ marginBottom: 12 }}>Web Bro Web Store</h2>
 
-      <div className="mb-3 flex gap-2">
-        <button className="btn" onClick={() => setFilter("All")}>All</button>
+      {/* Category filters */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         {categories.map((c) => (
-          <button key={c} className="btn" onClick={() => setFilter(c)}>{c}</button>
+          <button
+            key={c}
+            onClick={() => setCategory(c)}
+            style={{
+              padding: "6px 12px",
+              backgroundColor: category === c ? "#8feda4" : "#05101a",
+              border: "none",
+              borderRadius: 4,
+              cursor: "pointer",
+              color: category === c ? "#000" : "#fff",
+            }}
+          >
+            {c}
+          </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
-        {filteredApps.map((app) => (
-          <div key={app.id} className="bg-[#05101a] rounded p-2 cursor-pointer hover:bg-[#0b1a2f]" onClick={() => openApp(app.name)}>
-            <div className="text-lg font-semibold">{app.name}</div>
-            <div className="text-sm text-gray-400">{app.category}</div>
+      {/* Apps grid */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+          gap: 12,
+        }}
+      >
+        {apps.map((app) => (
+          <div
+            key={app.id}
+            style={{
+              backgroundColor: "#05101a",
+              borderRadius: 8,
+              padding: 12,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+            }}
+          >
+            <img
+              src={app.icon}
+              alt={app.name}
+              style={{ width: 48, height: 48, marginBottom: 8 }}
+            />
+            <div style={{ fontSize: 12, marginBottom: 8 }}>{app.name}</div>
+            <div style={{ fontSize: 10, marginBottom: 8, color: "#8feda4" }}>
+              {app.category}
+            </div>
+            <button
+              onClick={() => openApp(app.name)}
+              style={{
+                padding: "4px 8px",
+                borderRadius: 4,
+                border: "none",
+                cursor: "pointer",
+                backgroundColor: "#8feda4",
+                color: "#000",
+                fontSize: 10,
+              }}
+            >
+              Install
+            </button>
           </div>
         ))}
       </div>
