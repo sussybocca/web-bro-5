@@ -1,21 +1,14 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import { useSystemStore } from "../store/systemStore";
 import Explorer from "../apps/Explorer";
 import Settings from "../apps/Settings";
 import Terminal from "../apps/Terminal";
 import ProjectPublisher from "../components/ProjectPublisher";
-import Store from "../apps/Store"; // ← Import Store app
+import Store from "../apps/Store"; // <-- Import Store
 
 export default function WindowManager() {
-  const { openApps, closeApp, bringToFront, updateAppPosition, openApp } = useSystemStore();
+  const { openApps, closeApp, bringToFront, updateAppPosition } = useSystemStore();
   const dragRefs = useRef({}); // Track dragging state per window
-
-  // Auto-open Store app on first render
-  useEffect(() => {
-    if (!openApps.some(a => a.name === "Store")) {
-      openApp("Store");
-    }
-  }, []);
 
   const renderApp = (name) => {
     switch (name) {
@@ -27,15 +20,15 @@ export default function WindowManager() {
         return <Terminal />;
       case "Project Publisher":
         return <ProjectPublisher />;
-      case "Store":
-        return <Store />; // ← Add Store here
+      case "Web Bro Web Store": // <-- Add the store app here
+        return <Store />;
       default:
         return <div>Unknown App</div>;
     }
   };
 
   const handleMouseDown = (e, app) => {
-    bringToFront(app.id);
+    bringToFront(app.id); // Bring window to front
     dragRefs.current[app.id] = {
       offsetX: e.clientX - app.position.x,
       offsetY: e.clientY - app.position.y,
