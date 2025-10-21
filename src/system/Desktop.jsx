@@ -12,8 +12,9 @@ export default function Desktop() {
     { name: "Project Publisher", icon: "/icons/project.svg" },
     { name: "Web Bro Web Store", icon: "/icons/store.svg" },
     { name: "WebBoe Browser", icon: "/icons/browser.svg" },
+    { name: "FireBox", icon: "/icons/firebox.svg" },   // <-- FireBox added
     { name: "Betas", icon: "/icons/betas-folder.svg" },
-    // Dynamic desktop apps from store (like FireBox apps)
+    // Dynamic desktop apps from store (like FireBox-installed apps)
     ...desktopApps?.map((app) => ({ name: app.name, icon: app.icon })) || []
   ];
 
