@@ -4,18 +4,33 @@ import { useSystemStore } from "../store/systemStore";
 export default function Desktop() {
   const { wallpaper, openApp, desktopApps } = useSystemStore();
 
+  // Helper to auto-detect .png / .jpg / .png.jpg
+  const resolveIcon = (base) => {
+    const possible = [
+      `/icons/${base}.svg`,
+      `/icons/${base}.png`,
+      `/icons/${base}.jpg`,
+      `/icons/${base}.png.jpg`
+    ];
+    return possible.find((path) => path) || "/icons/default.png";
+  };
+
   // Base system icons + all apps
   const icons = [
-    { name: "Explorer", icon: "/icons/file.svg" },
-    { name: "Settings", icon: "/icons/settings.svg" },
-    { name: "Terminal", icon: "/icons/terminal.svg" },
-    { name: "Project Publisher", icon: "/icons/project.svg" },
-    { name: "Web Bro Web Store", icon: "/icons/store.svg" },
-    { name: "WebBoe Browser", icon: "/icons/browser.svg" },
-    { name: "FireBox", icon: "/icons/firebox.svg" },   // <-- FireBox added
-    { name: "Betas", icon: "/icons/betas-folder.svg" },
-    // Dynamic desktop apps from store (like FireBox-installed apps)
-    ...desktopApps?.map((app) => ({ name: app.name, icon: app.icon })) || []
+    { name: "Explorer", icon: resolveIcon("file") },
+    { name: "Settings", icon: resolveIcon("settings") },
+    { name: "Terminal", icon: resolveIcon("terminal") },
+    { name: "Project Publisher", icon: resolveIcon("project") },
+    { name: "Web Bro Web Store", icon: resolveIcon("store") },
+    { name: "WebBoe Browser", icon: resolveIcon("browser") },
+    { name: "FireBox", icon: resolveIcon("firebox") },
+    { name: "Betas", icon: resolveIcon("betas-folder") },
+    { name: "Web Bro OS Mini", icon: resolveIcon("webbro-mini") },
+    // Dynamic desktop apps from FireBox / Store
+    ...(desktopApps?.map((app) => ({
+      name: app.name,
+      icon: app.icon || resolveIcon(app.name.toLowerCase())
+    })) || [])
   ];
 
   return (
@@ -24,7 +39,7 @@ export default function Desktop() {
         style={{
           padding: 24,
           display: "grid",
-          gridTemplateColumns: "repeat(6,1fr)",
+          gridTemplateColumns: "repeat(6, 1fr)",
           gap: 18
         }}
       >
@@ -37,6 +52,7 @@ export default function Desktop() {
             <img
               src={it.icon}
               alt={it.name}
+              onError={(e) => (e.target.src = "/icons/default.png")}
               style={{ width: 56, height: 56, borderRadius: 8 }}
             />
             <div style={{ marginTop: 6, fontSize: 13 }}>{it.name}</div>
