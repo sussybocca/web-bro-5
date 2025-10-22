@@ -1,5 +1,8 @@
+// src/system/WindowManager.jsx
 import React, { useRef } from "react";
 import { useSystemStore } from "../store/systemStore";
+
+// Apps
 import Explorer from "../apps/Explorer";
 import Settings from "../apps/Settings";
 import Terminal from "../apps/Terminal";
@@ -7,7 +10,8 @@ import ProjectPublisher from "../components/ProjectPublisher";
 import Store from "../apps/Store"; // Web Bro Web Store
 import WebBoe from "../apps/WebBoe"; // WebBoe Browser
 import FireBox from "../apps/FireBox"; // FireBox
-import Betas from "../apps/Betas"; // <-- Import Betas
+import Betas from "../apps/Betas"; // Betas
+import WebBroMini from "../apps/WebBroMini"; // <-- New app: Web Bro OS Mini
 
 export default function WindowManager() {
   const { openApps, closeApp, bringToFront, updateAppPosition } = useSystemStore();
@@ -29,8 +33,10 @@ export default function WindowManager() {
         return <WebBoe />;
       case "FireBox":
         return <FireBox />;
-      case "Betas": // <-- Add Betas app
+      case "Betas":
         return <Betas />;
+      case "Web Bro OS Mini": // <-- Add Mini OS app
+        return <WebBroMini />;
       default:
         return <div>Unknown App</div>;
     }
