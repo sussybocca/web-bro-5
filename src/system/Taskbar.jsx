@@ -1,78 +1,95 @@
-// src/system/Taskbar.jsx
-import React, { useState } from "react";
+import React from "react";
 import { useSystemStore } from "../store/systemStore";
-import Windows from "./Windows";
-import Search from "./Search";
 
 export default function Taskbar() {
-  const { openApp, openApps, toggleMinimize, bringToFront } = useSystemStore();
-  const [pinnedApps, setPinnedApps] = useState([
-    { name: "Explorer", icon: "/icons/file.svg" },
-    { name: "Terminal", icon: "/icons/terminal.svg" },
-    { name: "Web Bro OS Mini", icon: "/icons/mini-os.svg" },
-    { name: "WebBoe Browser", icon: "/icons/browser.svg" },
-  ]);
-
-  const togglePin = (appName, icon) => {
-    if (pinnedApps.find((a) => a.name === appName)) {
-      setPinnedApps(pinnedApps.filter((a) => a.name !== appName));
-    } else {
-      setPinnedApps([...pinnedApps, { name: appName, icon }]);
-    }
-  };
-
-  const handleAppClick = (appName) => {
-    const opened = openApps.find((a) => a.name === appName);
-    if (opened) {
-      toggleMinimize(opened.id);
-    } else {
-      openApp(appName);
-    }
-  };
+  const { openApps, bringToFront, openApp } = useSystemStore();
 
   return (
     <div
       style={{
         position: "fixed",
         bottom: 0,
+        left: 0,
         width: "100%",
-        background: "#0a1624",
+        height: "48px",
+        background: "rgba(30,30,30,0.95)",
+        borderTop: "1px solid #333",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "4px 12px",
-        boxShadow: "0 -2px 6px rgba(0,0,0,0.5)",
+        padding: "0 12px",
+        boxSizing: "border-box",
         zIndex: 9999,
       }}
     >
-      {/* Pinned apps */}
-      <div style={{ display: "flex", gap: 6 }}>
-        {pinnedApps.map((app) => (
-          <img
-            key={app.name}
-            src={app.icon}
-            alt={app.name}
-            title={`Right-click to ${pinnedApps.find(a => a.name === app.name) ? "unpin" : "pin"}`}
+      {/* ---- Start Button ---- */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          cursor: "pointer",
+          color: "white",
+          fontWeight: "bold",
+        }}
+        onClick={() => openApp("Web Bro OS Mini")} // opens your new mini OS
+      >
+        <img
+          src="/icons/webbro.svg"
+          alt="Start"
+          style={{ width: 24, height: 24 }}
+        />
+        <span>Web Bro</span>
+      </div>
+
+      {/* ---- Taskbar Apps ---- */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          flex: 1,
+          justifyContent: "center",
+        }}
+      >
+        {openApps.map((app) => (
+          <div
+            key={app.id}
+            onClick={() => bringToFront(app.id)}
             style={{
-              width: 36,
-              height: 36,
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              background: "rgba(255,255,255,0.08)",
+              padding: "6px 10px",
+              borderRadius: "6px",
+              color: "white",
               cursor: "pointer",
-              opacity: openApps.find((a) => a.name === app.name)?.minimized ? 0.5 : 1,
+              transition: "background 0.2s",
             }}
-            onClick={() => handleAppClick(app.name)}
-            onContextMenu={(e) => {
-              e.preventDefault();
-              togglePin(app.name, app.icon);
-            }}
-          />
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.18)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+          >
+            <img
+              src={app.icon || "/icons/app.svg"}
+              alt={app.name}
+              style={{ width: 20, height: 20 }}
+            />
+            <span style={{ fontSize: 13 }}>{app.name}</span>
+          </div>
         ))}
       </div>
 
-      {/* Active Windows */}
-      <Windows />
-
-      {/* Search */}
-      <Search />
+      {/* ---- Clock ---- */}
+      <div
+        style={{
+          color: "white",
+          fontSize: 13,
+          fontFamily: "monospace",
+        }}
+      >
+        {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+      </div>
     </div>
   );
 }
