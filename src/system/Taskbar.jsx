@@ -1,28 +1,52 @@
+// src/system/Taskbar.jsx
 import React from "react";
 import { useSystemStore } from "../store/systemStore";
+import Windows from "./Windows";
+import Search from "./Search";
 
 export default function Taskbar() {
-  const { openApps, toggleStart, closeApp } = useSystemStore();
+  const { openApp } = useSystemStore();
+
+  // Base pinned apps
+  const pinnedApps = [
+    { name: "Explorer", icon: "/icons/file.svg" },
+    { name: "Terminal", icon: "/icons/terminal.svg" },
+    { name: "Web Bro OS Mini", icon: "/icons/mini-os.svg" },
+    { name: "WebBoe Browser", icon: "/icons/browser.svg" }
+  ];
 
   return (
-    <div className="taskbar">
-      <button className="btn" onClick={toggleStart}>⊞</button>
-
-      <div style={{ display: "flex", gap: 8, alignItems: "center", marginLeft: 8 }}>
-        {openApps.map(a => (
-          <div key={a.id}>
-            <button className="btn" onClick={() => {
-              // simple behavior: bring to front by closing & reopening
-              closeApp(a.id);
-              setTimeout(() => { /* small delay to allow close then open */ }, 10);
-            }}>{a.name}</button>
-          </div>
+    <div
+      style={{
+        position: "fixed",
+        bottom: 0,
+        width: "100%",
+        background: "#0a1624",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "4px 12px",
+        boxShadow: "0 -2px 6px rgba(0,0,0,0.5)",
+        zIndex: 9999,
+      }}
+    >
+      <div style={{ display: "flex", gap: 6 }}>
+        {pinnedApps.map(app => (
+          <img
+            key={app.name}
+            src={app.icon}
+            alt={app.name}
+            style={{ width: 36, height: 36, cursor: "pointer" }}
+            onClick={() => openApp(app.name)}
+          />
         ))}
       </div>
 
-      <div style={{ marginLeft: "auto", color: "rgba(255,255,255,0.6)", fontSize: 13 }}>
-        Web Bro OS
-      </div>
+      {/* Open windows */}
+      <Windows />
+
+      {/* Search bar */}
+      <Search />
     </div>
   );
 }
