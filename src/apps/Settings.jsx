@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useSystemStore } from "../store/systemStore";
 
 export default function Settings() {
-  const { setWallpaper, setTheme } = useSystemStore();
+  const { setWallpaper, setTheme, drives, createDrive } = useSystemStore();
 
-  // Basic settings
+  // Appearance
   const [wallpaper, setLocalWallpaper] = useState(localStorage.getItem("wb_wallpaper") || "");
   const [theme, setLocalTheme] = useState(localStorage.getItem("wb_theme") || "light");
 
@@ -51,18 +51,26 @@ export default function Settings() {
     alert("✅ DNS settings saved.");
   };
 
-  // Handle version change (simulate downgrade/upgrade)
+  // Handle version change
   const handleVersionChange = (v) => {
     setCurrentVersion(v);
     localStorage.setItem("wb_version", v);
     alert(`🔁 Web Bro OS downgraded/upgraded to version ${v}`);
   };
 
+  // Handle creating new drive
+  const handleCreateDrive = () => {
+    const name = prompt("Enter drive letter (e.g., D, E):");
+    if (!name) return;
+    createDrive(name.toUpperCase());
+    alert(`💾 Drive ${name.toUpperCase()}: created.`);
+  };
+
   useEffect(() => {
     if (wallpaper) setWallpaper(wallpaper);
     if (theme) setTheme(theme);
 
-    // Fetch Betas folder versions (if hosted in /public/betas)
+    // Fetch beta versions if available
     fetch("/betas/")
       .then((res) => res.text())
       .then((text) => {
@@ -85,11 +93,7 @@ export default function Settings() {
           <label className="block mb-1">Change Wallpaper:</label>
           <input type="file" accept="image/*" onChange={handleWallpaperChange} />
           {wallpaper && (
-            <img
-              src={wallpaper}
-              alt="Wallpaper preview"
-              className="mt-2 w-48 h-28 object-cover rounded"
-            />
+            <img src={wallpaper} alt="Wallpaper preview" className="mt-2 w-48 h-28 object-cover rounded" />
           )}
         </div>
 
@@ -112,11 +116,7 @@ export default function Settings() {
       <section>
         <h3 className="text-lg font-bold mb-2">💻 Developer Settings</h3>
         <div className="flex items-center gap-2 mb-2">
-          <input
-            type="checkbox"
-            checked={devMode}
-            onChange={toggleDevMode}
-          />
+          <input type="checkbox" checked={devMode} onChange={toggleDevMode} />
           <label>Enable Developer Mode</label>
         </div>
         {devMode && (
@@ -128,7 +128,7 @@ export default function Settings() {
         )}
       </section>
 
-      {/* ===== DNS SETTINGS ===== */}
+      {/* ===== NETWORK SETTINGS ===== */}
       <section>
         <h3 className="text-lg font-bold mb-2">🌐 Network (DNS)</h3>
         <div className="mb-2">
@@ -166,10 +166,7 @@ export default function Settings() {
         {versions.length > 0 ? (
           <div className="space-y-2">
             {versions.map((v) => (
-              <div
-                key={v}
-                className="flex justify-between items-center bg-gray-800 p-2 rounded"
-              >
+              <div key={v} className="flex justify-between items-center bg-gray-800 p-2 rounded">
                 <span>{v}</span>
                 <button
                   onClick={() => handleVersionChange(v)}
@@ -181,9 +178,31 @@ export default function Settings() {
             ))}
           </div>
         ) : (
-          <p className="text-gray-500 text-sm">
-            No beta versions found. (Ensure /public/betas exists)
-          </p>
+          <p className="text-gray-500 text-sm">No beta versions found. (Ensure /public/betas exists)</p>
+        )}
+      </section>
+
+      {/* ===== DRIVE MANAGEMENT (TASK MANAGER STYLE) ===== */}
+      <section>
+        <h3 className="text-lg font-bold mb-2">💾 Drive Management</h3>
+        <button
+          onClick={handleCreateDrive}
+          className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded mb-2"
+        >
+          ➕ Create New Drive
+        </button>
+
+        {Object.keys(drives).length > 0 ? (
+          <div className="space-y-1">
+            {Object.keys(drives).map((d) => (
+              <div key={d} className="flex justify-between items-center bg-gray-800 p-2 rounded">
+                <span>Drive {d}:</span>
+                <span>{drives[d].length} items</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500 text-sm">No drives available.</p>
         )}
       </section>
     </div>
