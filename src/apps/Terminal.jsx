@@ -1,27 +1,34 @@
+// src/system/Terminal.jsx
 import React, { useState } from "react";
 
 export default function Terminal() {
-  const [lines, setLines] = useState(["Welcome to Web Bro OS Terminal"]);
+  const [logs, setLogs] = useState([]);
   const [input, setInput] = useState("");
 
-  const handleKey = (e) => {
-    if (e.key === "Enter") {
-      setLines([...lines, `> ${input}`, `You typed: ${input}`]);
-      setInput("");
+  const handleCommand = (cmd) => {
+    setLogs((prev) => [...prev, `> ${cmd}`]);
+    if (cmd === "help") {
+      setLogs((prev) => [...prev, "Available commands: help, echo, clear"]);
+    } else if (cmd.startsWith("echo ")) {
+      setLogs((prev) => [...prev, cmd.slice(5)]);
+    } else if (cmd === "clear") {
+      setLogs([]);
+    } else {
+      setLogs((prev) => [...prev, `Unknown command: ${cmd}`]);
     }
+    setInput("");
   };
 
   return (
-    <div className="bg-black text-green-400 font-mono text-sm p-2 h-full overflow-auto">
-      {lines.map((line, i) => (
-        <div key={i}>{line}</div>
+    <div className="terminal bg-black text-green-400 font-mono p-4 rounded shadow-lg w-96 h-64 overflow-y-auto">
+      {logs.map((log, idx) => (
+        <div key={idx}>{log}</div>
       ))}
       <input
-        className="bg-transparent outline-none text-green-400 w-full"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        onKeyDown={handleKey}
-        autoFocus
+        onKeyDown={(e) => e.key === "Enter" && handleCommand(input)}
+        className="bg-black text-green-400 w-full outline-none"
       />
     </div>
   );
