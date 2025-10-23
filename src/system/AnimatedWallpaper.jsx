@@ -2,8 +2,10 @@
 import React, { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useSprings, animated, to as interpolate, config } from "react-spring";
+import { useSystemStore } from "../store/systemStore";
 
 export default function AnimatedWallpaper() {
+  const { openApp, desktopApps, wallpaper } = useSystemStore();
   const particleCount = 30;
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
@@ -40,7 +42,7 @@ export default function AnimatedWallpaper() {
     }));
   }, [api, mouse]);
 
-  // Track mouse position
+  // Track mouse position for parallax
   useEffect(() => {
     const handleMouseMove = e => {
       setMouse({ x: e.clientX - window.innerWidth / 2, y: e.clientY - window.innerHeight / 2 });
@@ -49,8 +51,29 @@ export default function AnimatedWallpaper() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
+  // Desktop icons (including any user-added apps)
+  const icons = [
+    { name: "Explorer", emoji: "📁" },
+    { name: "Settings", emoji: "⚙️" },
+    { name: "Terminal", emoji: "💻" },
+    { name: "Project Publisher", emoji: "📦" },
+    { name: "Web Bro Web Store", emoji: "🛒" },
+    { name: "WebBoe Browser", emoji: "🌐" },
+    { name: "FireBox", emoji: "🔥" },
+    { name: "Betas", emoji: "🧪" },
+    ...desktopApps?.map(app => ({ name: app.name, emoji: app.emoji || "📄" })) || []
+  ];
+
   return (
-    <div className="absolute inset-0 overflow-hidden bg-black">
+    <div className="absolute inset-0 overflow-hidden">
+      {/* Base wallpaper (optional image) */}
+      {wallpaper && (
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${wallpaper})` }}
+        />
+      )}
+
       {/* Animated gradient layers */}
       <motion.div
         className="absolute inset-0"
@@ -72,7 +95,7 @@ export default function AnimatedWallpaper() {
         transition={{ repeat: Infinity, duration: 120, ease: "easeInOut" }}
       />
 
-      {/* Spring-driven floating particles */}
+      {/* Floating spring particles */}
       {springs.map((props, i) => (
         <animated.div
           key={i}
@@ -92,7 +115,7 @@ export default function AnimatedWallpaper() {
         />
       ))}
 
-      {/* Radial wave overlays for depth */}
+      {/* Radial wave overlays */}
       <motion.div
         className="absolute inset-0"
         style={{
@@ -109,6 +132,25 @@ export default function AnimatedWallpaper() {
         animate={{ rotate: [0, -15, 0, 15, 0], scale: [1, 1.05, 1] }}
         transition={{ repeat: Infinity, duration: 90, ease: "easeInOut" }}
       />
+
+      {/* Desktop icons on top of wallpaper and particles */}
+      <div
+        className="absolute top-6 left-6 grid gap-6 grid-cols-6"
+        style={{ zIndex: 10 }}
+      >
+        {icons.map(icon => (
+          <div
+            key={icon.name}
+            className="desktop-icon cursor-pointer flex flex-col items-center select-none"
+            onDoubleClick={() => openApp(icon.name)}
+          >
+            <div style={{ fontSize: 48 }}>{icon.emoji}</div>
+            <div style={{ marginTop: 6, fontSize: 13, textAlign: "center", color: "white" }}>
+              {icon.name}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
