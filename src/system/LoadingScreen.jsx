@@ -1,74 +1,80 @@
 // src/system/LoadingScreen.jsx
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-
-const bootSteps = [
-  "Initializing kernel...",
-  "Loading system modules...",
-  "Starting network services...",
-  "Checking storage devices...",
-  "Launching desktop environment...",
-  "Web Bro OS ready!"
-];
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function LoadingScreen() {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [progress, setProgress] = useState(0);
 
+  // Simulate boot progress for ~60 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentStep((prev) => {
-        if (prev < bootSteps.length - 1) return prev + 1;
-        clearInterval(interval);
-        return prev;
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          return 100;
+        }
+        return prev + 0.5; // Adjust speed (0.5 * 200ms ~ 1 minute)
       });
-    }, 1200); // change step every 1.2s
+    }, 300);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="w-screen h-screen bg-black flex flex-col justify-center items-center text-white font-mono relative overflow-hidden">
-      {/* Boot Logo */}
+    <div className="fixed inset-0 bg-black flex flex-col justify-center items-center text-white overflow-hidden">
+      {/* Booting logo animation */}
       <motion.div
-        className="text-6xl mb-10"
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 2, type: "spring", stiffness: 100 }}
+        className="text-4xl mb-6"
       >
-        🖥️
+        💻 Web Bro OS
       </motion.div>
 
-      {/* Boot Steps */}
-      <div className="space-y-2 text-left w-80">
-        {bootSteps.slice(0, currentStep + 1).map((step, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-sm text-gray-400"
-          >
-            {step}
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Loading Bar */}
-      <div className="mt-8 w-80 h-2 bg-gray-800 rounded-full overflow-hidden">
+      {/* Progress bar container */}
+      <div className="w-3/4 bg-gray-800 rounded-full h-4 overflow-hidden mb-4">
         <motion.div
-          className="h-full bg-green-500"
-          initial={{ width: "0%" }}
-          animate={{ width: `${((currentStep + 1) / bootSteps.length) * 100}%` }}
-          transition={{ type: "tween", duration: 1 }}
+          className="bg-green-500 h-4"
+          initial={{ width: 0 }}
+          animate={{ width: `${progress}%` }}
+          transition={{ ease: "linear" }}
         />
       </div>
 
-      {/* Flicker effect */}
+      {/* Loading text with subtle animation */}
+      <AnimatePresence>
+        <motion.div
+          key={progress}
+          initial={{ opacity: 0.5 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0.5 }}
+          transition={{ duration: 0.5 }}
+          className="text-sm font-mono"
+        >
+          Booting system... {Math.floor(progress)}%
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Additional animated "OS boot messages" */}
       <motion.div
-        className="absolute inset-0 bg-white"
         initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 0.02, 0] }}
-        transition={{ repeat: Infinity, duration: 0.1, repeatType: "loop" }}
-      />
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1, staggerChildren: 0.3 }}
+        className="mt-6 text-xs font-mono text-gray-400 space-y-1"
+      >
+        <motion.div animate={{ x: [-10, 0, 10, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
+          Initializing kernel modules...
+        </motion.div>
+        <motion.div animate={{ x: [-10, 0, 10, 0] }} transition={{ repeat: Infinity, duration: 2.5 }}>
+          Mounting virtual drives...
+        </motion.div>
+        <motion.div animate={{ x: [-10, 0, 10, 0] }} transition={{ repeat: Infinity, duration: 3 }}>
+          Loading system resources...
+        </motion.div>
+        <motion.div animate={{ x: [-10, 0, 10, 0] }} transition={{ repeat: Infinity, duration: 3.5 }}>
+          Starting user interface...
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
