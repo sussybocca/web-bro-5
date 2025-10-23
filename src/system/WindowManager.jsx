@@ -1,100 +1,70 @@
 // src/system/WindowManager.jsx
-import React, { useRef } from "react";
+import React from "react";
 import { useSystemStore } from "../store/systemStore";
+import { motion } from "framer-motion";
 
 // Apps
 import Explorer from "../apps/Explorer";
 import Settings from "../apps/Settings";
 import Terminal from "../apps/Terminal";
 import ProjectPublisher from "../components/ProjectPublisher";
-import Store from "../apps/Store"; // Web Bro Web Store
-import WebBoe from "../apps/WebBoe"; // WebBoe Browser
-import FireBox from "../apps/FireBox"; // FireBox
-import Betas from "../apps/Betas"; // Betas
-import WebBroMini from "../apps/WebBroMini"; // <-- New app: Web Bro OS Mini
+import Store from "../apps/Store";
+import WebBoe from "../apps/WebBoe";
+import FireBox from "../apps/FireBox";
+import Betas from "../apps/Betas";
+import WebBroMini from "../apps/WebBroMini";
 
 export default function WindowManager() {
-  const { openApps, closeApp, bringToFront, updateAppPosition } = useSystemStore();
-  const dragRefs = useRef({}); // Track dragging state per window
+  const { openApps, closeApp } = useSystemStore();
 
   const renderApp = (name) => {
     switch (name) {
-      case "Explorer":
-        return <Explorer />;
-      case "Settings":
-        return <Settings />;
-      case "Terminal":
-        return <Terminal />;
-      case "Project Publisher":
-        return <ProjectPublisher />;
-      case "Web Bro Web Store":
-        return <Store />;
-      case "WebBoe Browser":
-        return <WebBoe />;
-      case "FireBox":
-        return <FireBox />;
-      case "Betas":
-        return <Betas />;
-      case "Web Bro OS Mini": // <-- Add Mini OS app
-        return <WebBroMini />;
-      default:
-        return <div>Unknown App</div>;
+      case "Explorer": return <Explorer />;
+      case "Settings": return <Settings />;
+      case "Terminal": return <Terminal />;
+      case "Project Publisher": return <ProjectPublisher />;
+      case "Web Bro Web Store": return <Store />;
+      case "WebBoe Browser": return <WebBoe />;
+      case "FireBox": return <FireBox />;
+      case "Betas": return <Betas />;
+      case "Web Bro OS Mini": return <WebBroMini />;
+      default: return <div>Unknown App</div>;
     }
-  };
-
-  const handleMouseDown = (e, app) => {
-    bringToFront(app.id);
-    dragRefs.current[app.id] = {
-      offsetX: e.clientX - app.position.x,
-      offsetY: e.clientY - app.position.y,
-    };
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-  };
-
-  const handleMouseMove = (e) => {
-    Object.entries(dragRefs.current).forEach(([id, drag]) => {
-      if (drag) {
-        const x = e.clientX - drag.offsetX;
-        const y = e.clientY - drag.offsetY;
-        updateAppPosition(Number(id), { x, y });
-      }
-    });
-  };
-
-  const handleMouseUp = () => {
-    dragRefs.current = {};
-    document.removeEventListener("mousemove", handleMouseMove);
-    document.removeEventListener("mouseup", handleMouseUp);
   };
 
   return (
     <>
       {openApps.map((app) => (
-        <div
+        <motion.div
           key={app.id}
-          className="window"
+          drag
+          dragMomentum={false}
+          dragConstraints={{ left: 0, top: 0, right: window.innerWidth - app.size.w, bottom: window.innerHeight - app.size.h }}
           style={{
+            position: "absolute",
             left: app.position.x,
             top: app.position.y,
             width: app.size.w,
             height: app.size.h,
-            position: "absolute",
             zIndex: app.zIndex || 1,
+            background: "#0b1220",
+            border: "1px solid #333",
+            borderRadius: 6,
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column"
           }}
         >
           <div
-            className="titlebar"
-            style={{ cursor: "grab" }}
-            onMouseDown={(e) => handleMouseDown(e, app)}
+            className="titlebar flex justify-between items-center p-1 cursor-grab bg-gray-900"
           >
-            <div>{app.name}</div>
-            <div>
-              <button className="btn" onClick={() => closeApp(app.id)}>✖</button>
-            </div>
+            <span>{app.name}</span>
+            <button className="btn" onClick={() => closeApp(app.id)}>✖</button>
           </div>
-          <div className="content">{renderApp(app.name)}</div>
-        </div>
+          <div className="content flex-1 overflow-auto p-2">
+            {renderApp(app.name)}
+          </div>
+        </motion.div>
       ))}
     </>
   );
