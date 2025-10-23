@@ -36,8 +36,7 @@ export default function WindowManager() {
   };
 
   return (
-    <div className="desktop">
-      {/* Draggable app windows */}
+    <div className="window-manager" style={{ position: "relative", zIndex: 1 }}>
       {openApps.map((app) => (
         <motion.div
           key={app.id}
