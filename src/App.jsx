@@ -9,10 +9,12 @@ import { loadDefaultOS } from "./loaders/osLoader";
 import { useSystemStore } from "./store/systemStore";
 import LoadingScreen from "./system/LoadingScreen";
 import CustomCursor from "./system/CustomCursor";
+import Login from "./components/Login.jsx"; // our login page component
 
 export default function App() {
   const setOS = useSystemStore((s) => s.setOS);
   const [loading, setLoading] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
     loadDefaultOS()
@@ -28,6 +30,12 @@ export default function App() {
 
   if (loading) return <LoadingScreen />;
 
+  // If not logged in, show the login page
+  if (!loggedIn) {
+    return <Login onLogin={() => setLoggedIn(true)} />;
+  }
+
+  // After login, show the desktop
   return (
     <FullscreenHandler>
       <CustomCursor />
