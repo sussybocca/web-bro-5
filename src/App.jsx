@@ -8,12 +8,10 @@ import FullscreenHandler from "./system/FullscreenHandler";
 import { loadDefaultOS } from "./loaders/osLoader";
 import { useSystemStore } from "./store/systemStore";
 import CustomCursor from "./system/CustomCursor";
-import BootScreen from "./system/BootScreen";
 
 export default function App() {
   const setOS = useSystemStore((s) => s.setOS);
   const [loading, setLoading] = useState(true);
-  const [bootComplete, setBootComplete] = useState(false);
 
   useEffect(() => {
     loadDefaultOS()
@@ -22,16 +20,14 @@ export default function App() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error(err);
+        console.error("Error loading OS:", err);
         setLoading(false);
       });
-  }, []);
+  }, [setOS]);
 
-  if (loading) return <div>Loading system...</div>;
+  if (loading) return <div className="text-white bg-black flex items-center justify-center h-screen">Loading system...</div>;
 
-  // Show BootScreen until boot sequence is complete
-  if (!bootComplete) return <BootScreen onBootComplete={() => setBootComplete(true)} />;
-
+  // Directly render the desktop environment (skip BootScreen)
   return (
     <FullscreenHandler>
       <CustomCursor />
