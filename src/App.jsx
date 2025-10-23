@@ -5,6 +5,7 @@ import Taskbar from "./system/Taskbar";
 import StartMenu from "./system/StartMenu";
 import WindowManager from "./system/WindowManager";
 import FullscreenHandler from "./system/FullscreenHandler";
+import AnimatedWallpaper from "./system/AnimatedWallpaper";
 import { loadDefaultOS } from "./loaders/osLoader";
 import { useSystemStore } from "./store/systemStore";
 import CustomCursor from "./system/CustomCursor";
@@ -25,11 +26,17 @@ export default function App() {
       });
   }, [setOS]);
 
-  if (loading) return <div className="text-white bg-black flex items-center justify-center h-screen">Loading system...</div>;
+  if (loading)
+    return (
+      <div className="text-white bg-black flex items-center justify-center h-screen">
+        Loading system...
+      </div>
+    );
 
-  // Directly render the desktop environment (skip BootScreen)
+  // Render full desktop environment with animated wallpaper
   return (
     <FullscreenHandler>
+      <AnimatedWallpaper />
       <CustomCursor />
       <Desktop />
       <WindowManager />
