@@ -1,9 +1,10 @@
 // src/system/Desktop.jsx
 import React from "react";
 import { useSystemStore } from "../store/systemStore";
+import AnimatedWallpaper from "./AnimatedWallpaper";
 
 export default function Desktop() {
-  const { wallpaper, openApp, desktopApps } = useSystemStore();
+  const { openApp, desktopApps } = useSystemStore();
 
   const icons = [
     { name: "Explorer", emoji: "📁" },
@@ -18,13 +19,19 @@ export default function Desktop() {
   ];
 
   return (
-    <div className="desktop" style={{ backgroundImage: `url(${wallpaper})` }}>
+    <div className="desktop relative w-full h-full">
+      {/* Animated wallpaper as background */}
+      <AnimatedWallpaper />
+
+      {/* Desktop icons on top of wallpaper */}
       <div
         style={{
           padding: 24,
           display: "grid",
           gridTemplateColumns: "repeat(6,1fr)",
-          gap: 18
+          gap: 18,
+          position: "relative",
+          zIndex: 10 // ensures icons appear above wallpaper
         }}
       >
         {icons.map((it) => (
