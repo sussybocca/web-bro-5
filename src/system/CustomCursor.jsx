@@ -32,14 +32,19 @@ export default function CustomCursor() {
     window.addEventListener("mousedown", handleClick);
     window.addEventListener("wheel", handleScroll);
 
+    // Hide default cursor
+    document.body.style.cursor = "none";
+
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mousedown", handleClick);
       window.removeEventListener("wheel", handleScroll);
+
+      document.body.style.cursor = "default"; // restore default cursor
     };
   }, [controls]);
 
-  // Movement variants
+  // Movement animations
   const idleVariants = [
     { scale: 1, rotate: 0 },
     { scale: 1.05, rotate: 5 },
@@ -48,7 +53,7 @@ export default function CustomCursor() {
     { scale: 1, rotate: -10 },
   ];
 
-  // Click variants
+  // Click animations
   const clickVariants = [
     { scale: 0.8, rotate: 360, color: "#4ade80" },
     { scale: 1.3, rotate: -360, color: "#facc15" },
@@ -56,7 +61,7 @@ export default function CustomCursor() {
     { scale: 1.1, rotate: -45, color: "#f87171" },
   ];
 
-  // Scroll variants
+  // Scroll animations
   const scrollVariants = [
     { scale: 1.1, rotate: 15 },
     { scale: 0.9, rotate: -15 },
