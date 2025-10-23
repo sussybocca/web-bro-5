@@ -1,33 +1,26 @@
-// src/system/StartMenu.jsx
-import React, { useState } from "react";
+import React from "react";
 import AppSearch from "./AppSearch";
 import { useSystemStore } from "../store/systemStore";
 
 export default function StartMenu() {
-  const [open, setOpen] = useState(false);
-  const apps = useSystemStore((s) => s.apps);
+  const { apps, startMenuOpen, toggleStartMenu } = useSystemStore();
 
   return (
-    <div>
-      <button
-        className="start-button"
-        onClick={() => setOpen(!open)}
-      >
+    <div className="start-menu-container">
+      <button className="start-button" onClick={toggleStartMenu}>
         🪟 Start
       </button>
 
-      {open && (
-        <div className="start-menu bg-gray-900 text-white p-4 w-64 rounded shadow-lg">
-          <AppSearch apps={apps} />
-          <div className="app-list mt-2">
-            {apps.map((app) => (
-              <div key={app.id} className="app-item hover:bg-gray-700 p-2 rounded">
-                {app.name}
-              </div>
-            ))}
-          </div>
+      <div className={`start-menu ${startMenuOpen ? "active" : ""}`}>
+        <AppSearch apps={apps} />
+        <div className="app-list">
+          {apps.map((app) => (
+            <div key={app.id} className="start-menu-item">
+              {app.name}
+            </div>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }
