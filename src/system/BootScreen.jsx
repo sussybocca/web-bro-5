@@ -1,15 +1,13 @@
 // src/system/BootScreen.jsx
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSpring, animated, config } from "@react-spring/web";
-import WindowManager from "./WindowManager";
+import { useSpring, animated, config } from "@react-spring";
 
-export default function BootScreen() {
+export default function BootScreen({ onFinish }) {
   const [stageIndex, setStageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [dots, setDots] = useState([0, 1, 2]);
   const [fadeOut, setFadeOut] = useState(false);
-  const [bootComplete, setBootComplete] = useState(false);
 
   const stages = [
     { text: "BIOS Loaded...", duration: 6000 },
@@ -28,7 +26,7 @@ export default function BootScreen() {
 
   useEffect(() => {
     let elapsed = 0;
-    const step = 100; // 100ms
+    const step = 100;
     const interval = setInterval(() => {
       elapsed += step;
       const percent = Math.min((elapsed / totalDuration) * 100, 100);
@@ -46,14 +44,14 @@ export default function BootScreen() {
     // Start fade-out 1.5s before finish
     setTimeout(() => setFadeOut(true), totalDuration - 1500);
 
-    // Boot complete → show WindowManager
-    const finishTimer = setTimeout(() => setBootComplete(true), totalDuration);
+    // Call onFinish callback when booting is complete
+    const finishTimer = setTimeout(() => onFinish?.(), totalDuration);
 
     return () => {
       clearInterval(interval);
       clearTimeout(finishTimer);
     };
-  }, []);
+  }, [onFinish]);
 
   // Bouncing dots loop
   useEffect(() => {
@@ -62,9 +60,6 @@ export default function BootScreen() {
     }, 500);
     return () => clearInterval(dotInterval);
   }, []);
-
-  // If booting is complete, render WindowManager
-  if (bootComplete) return <WindowManager />;
 
   return (
     <AnimatePresence>
