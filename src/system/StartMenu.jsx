@@ -1,23 +1,33 @@
-import React from "react";
+// src/system/StartMenu.jsx
+import React, { useState } from "react";
+import AppSearch from "./AppSearch";
 import { useSystemStore } from "../store/systemStore";
 
 export default function StartMenu() {
-  const { startOpen, toggleStart, openApp } = useSystemStore();
-
-  if (!startOpen) return null;
-
-  const apps = ["Explorer", "Settings", "Terminal", "Project Publisher"];
+  const [open, setOpen] = useState(false);
+  const apps = useSystemStore((s) => s.apps);
 
   return (
-    <div className="start-menu">
-      <h3 style={{ margin: 0, marginBottom: 8 }}>Start</h3>
-      <div>
-        {apps.map(a => (
-          <div key={a} style={{ padding: "8px 6px", cursor: "pointer" }} onClick={() => { openApp(a); toggleStart(); }}>
-            {a}
+    <div>
+      <button
+        className="start-button"
+        onClick={() => setOpen(!open)}
+      >
+        🪟 Start
+      </button>
+
+      {open && (
+        <div className="start-menu bg-gray-900 text-white p-4 w-64 rounded shadow-lg">
+          <AppSearch apps={apps} />
+          <div className="app-list mt-2">
+            {apps.map((app) => (
+              <div key={app.id} className="app-item hover:bg-gray-700 p-2 rounded">
+                {app.name}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
