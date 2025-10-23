@@ -1,7 +1,7 @@
 // src/system/AnimatedWallpaper.jsx
 import React, { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useSprings, animated, to as interpolate, config } from "react-spring";
+import { useSprings, animated, to as interpolate } from "react-spring";
 import { useSystemStore } from "../store/systemStore";
 
 export default function AnimatedWallpaper() {
