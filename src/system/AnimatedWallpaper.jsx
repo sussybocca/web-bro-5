@@ -1,37 +1,53 @@
 // src/system/AnimatedWallpaper.jsx
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useSprings, animated, to as interpolate } from "@react-spring";
+import { useSprings, animated, to as interpolate, config } from "react-spring";
 
 export default function AnimatedWallpaper() {
   const particleCount = 30;
-  const particles = useRef([...Array(particleCount)].map(() => ({
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: 20 + Math.random() * 40,
-    speed: 20 + Math.random() * 40,
-    delay: Math.random() * 5
-  }))).current;
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+
+  const particles = useRef(
+    [...Array(particleCount)].map(() => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: 20 + Math.random() * 40,
+      speed: 20 + Math.random() * 40,
+      delay: Math.random() * 5,
+      rotation: Math.random() * 360,
+    }))
+  ).current;
 
   const [springs, api] = useSprings(particleCount, i => ({
     x: particles[i].x,
     y: particles[i].y,
     scale: 1,
+    rotate: particles[i].rotation,
     opacity: 0.15,
     config: { mass: 2, tension: 180, friction: 50 },
     loop: { reverse: true },
   }));
 
-  // Animate particles with slight motion offsets
+  // Animate particles with slight motion offsets + parallax based on mouse
   useEffect(() => {
     api.start(i => ({
-      x: particles[i].x + (Math.random() - 0.5) * 10,
-      y: particles[i].y + (Math.random() - 0.5) * 10,
+      x: particles[i].x + (Math.random() - 0.5) * 10 + (mouse.x / 50),
+      y: particles[i].y + (Math.random() - 0.5) * 10 + (mouse.y / 50),
       scale: 0.8 + Math.random() * 0.4,
+      rotate: particles[i].rotation + (mouse.x + mouse.y) / 20,
       delay: particles[i].delay,
       loop: { reverse: true },
     }));
-  }, [api]);
+  }, [api, mouse]);
+
+  // Track mouse position
+  useEffect(() => {
+    const handleMouseMove = e => {
+      setMouse({ x: e.clientX - window.innerWidth / 2, y: e.clientY - window.innerHeight / 2 });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-black">
@@ -69,8 +85,8 @@ export default function AnimatedWallpaper() {
             opacity: props.opacity,
             filter: "blur(3px)",
             transform: interpolate(
-              [props.x, props.y, props.scale],
-              (x, y, s) => `translate(${x}vw, ${y}vh) scale(${s})`
+              [props.x, props.y, props.scale, props.rotate],
+              (x, y, s, r) => `translate(${x}vw, ${y}vh) scale(${s}) rotate(${r}deg)`
             ),
           }}
         />
