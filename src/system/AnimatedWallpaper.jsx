@@ -30,7 +30,6 @@ export default function AnimatedWallpaper() {
     loop: { reverse: true },
   }));
 
-  // Animate particles with slight motion offsets + parallax based on mouse
   useEffect(() => {
     api.start(i => ({
       x: particles[i].x + (Math.random() - 0.5) * 10 + (mouse.x / 50),
@@ -42,7 +41,6 @@ export default function AnimatedWallpaper() {
     }));
   }, [api, mouse]);
 
-  // Track mouse position for parallax
   useEffect(() => {
     const handleMouseMove = e => {
       setMouse({ x: e.clientX - window.innerWidth / 2, y: e.clientY - window.innerHeight / 2 });
@@ -51,7 +49,6 @@ export default function AnimatedWallpaper() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Desktop icons (including any user-added apps)
   const icons = [
     { name: "Explorer", emoji: "📁" },
     { name: "Settings", emoji: "⚙️" },
@@ -65,8 +62,8 @@ export default function AnimatedWallpaper() {
   ];
 
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      {/* Base wallpaper (optional image) */}
+    <div className="absolute inset-0 overflow-hidden relative">
+      {/* Base wallpaper */}
       {wallpaper && (
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -95,29 +92,31 @@ export default function AnimatedWallpaper() {
         transition={{ repeat: Infinity, duration: 120, ease: "easeInOut" }}
       />
 
-      {/* Floating spring particles */}
-      {springs.map((props, i) => (
-        <animated.div
-          key={i}
-          className="absolute bg-white rounded-full"
-          style={{
-            width: particles[i].size,
-            height: particles[i].size,
-            top: "0%",
-            left: "0%",
-            opacity: props.opacity,
-            filter: "blur(3px)",
-            transform: interpolate(
-              [props.x, props.y, props.scale, props.rotate],
-              (x, y, s, r) => `translate(${x}vw, ${y}vh) scale(${s}) rotate(${r}deg)`
-            ),
-          }}
-        />
-      ))}
+      {/* Particle layer (animated) */}
+      <div className="absolute inset-0 pointer-events-none">
+        {springs.map((props, i) => (
+          <animated.div
+            key={i}
+            className="absolute bg-white rounded-full"
+            style={{
+              width: particles[i].size,
+              height: particles[i].size,
+              top: "0%",
+              left: "0%",
+              opacity: props.opacity,
+              filter: "blur(3px)",
+              transform: interpolate(
+                [props.x, props.y, props.scale, props.rotate],
+                (x, y, s, r) => `translate(${x}vw, ${y}vh) scale(${s}) rotate(${r}deg)`
+              ),
+            }}
+          />
+        ))}
+      </div>
 
       {/* Radial wave overlays */}
       <motion.div
-        className="absolute inset-0"
+        className="absolute inset-0 pointer-events-none"
         style={{
           background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.05), transparent 70%)",
         }}
@@ -125,7 +124,7 @@ export default function AnimatedWallpaper() {
         transition={{ repeat: Infinity, duration: 60, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute inset-0"
+        className="absolute inset-0 pointer-events-none"
         style={{
           background: "radial-gradient(circle at 70% 70%, rgba(255,255,255,0.05), transparent 70%)",
         }}
@@ -133,10 +132,9 @@ export default function AnimatedWallpaper() {
         transition={{ repeat: Infinity, duration: 90, ease: "easeInOut" }}
       />
 
-      {/* Desktop icons on top of wallpaper and particles */}
+      {/* Desktop icons */}
       <div
-        className="absolute top-6 left-6 grid gap-6 grid-cols-6"
-        style={{ zIndex: 10 }}
+        className="absolute top-6 left-6 grid gap-6 grid-cols-6 relative z-50"
       >
         {icons.map(icon => (
           <div
