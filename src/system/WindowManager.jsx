@@ -2,7 +2,6 @@
 import React from "react";
 import { useSystemStore } from "../store/systemStore";
 import { motion } from "framer-motion";
-import AnimatedWallpaper from "./AnimatedWallpaper";
 
 // Apps
 import Explorer from "../apps/Explorer";
@@ -14,6 +13,9 @@ import WebBoe from "../apps/WebBoe";
 import FireBox from "../apps/FireBox";
 import Betas from "../apps/Betas";
 import WebBroMini from "../apps/WebBroMini";
+
+// Import global CSS
+import "../styles/global.css";
 
 export default function WindowManager() {
   const { openApps, closeApp } = useSystemStore();
@@ -34,11 +36,8 @@ export default function WindowManager() {
   };
 
   return (
-    <div className="w-full h-full relative">
-      {/* Animated wallpaper behind all windows */}
-      <AnimatedWallpaper />
-
-      {/* Render draggable app windows above wallpaper */}
+    <div className="desktop">
+      {/* Draggable app windows */}
       {openApps.map((app) => (
         <motion.div
           key={app.id}
@@ -48,30 +47,25 @@ export default function WindowManager() {
             left: 0,
             top: 0,
             right: window.innerWidth - app.size.w,
-            bottom: window.innerHeight - app.size.h
+            bottom: window.innerHeight - app.size.h,
           }}
+          className="window"
           style={{
-            position: "absolute",
             left: app.position.x,
             top: app.position.y,
             width: app.size.w,
             height: app.size.h,
-            zIndex: app.zIndex || 10, // keep windows above wallpaper
-            background: "#0b1220",
-            border: "1px solid #333",
-            borderRadius: 6,
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column"
+            zIndex: app.zIndex || 10,
           }}
         >
-          <div
-            className="titlebar flex justify-between items-center p-1 cursor-grab bg-gray-900"
-          >
+          {/* Titlebar */}
+          <div className="titlebar">
             <span>{app.name}</span>
             <button className="btn" onClick={() => closeApp(app.id)}>✖</button>
           </div>
-          <div className="content flex-1 overflow-auto p-2">
+
+          {/* App content */}
+          <div className="content">
             {renderApp(app.name)}
           </div>
         </motion.div>
