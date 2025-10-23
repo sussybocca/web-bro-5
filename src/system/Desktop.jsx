@@ -1,12 +1,10 @@
 // src/system/Desktop.jsx
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSystemStore } from "../store/systemStore";
-import AnimatedWallpaper from "./AnimatedWallpaper";
 import { motion } from "framer-motion";
-import { useSprings, animated, to as interpolate, config } from "react-spring";
 
 export default function Desktop() {
-  const { openApp, desktopApps, openApps, closeApp } = useSystemStore();
+  const { openApp, desktopApps, openApps, closeApp, wallpaper } = useSystemStore();
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
 
   // Track window size for app drag constraints
@@ -29,10 +27,12 @@ export default function Desktop() {
   ];
 
   return (
-    <div className="desktop relative w-full h-full">
-      {/* Animated wallpaper as background */}
-      <AnimatedWallpaper />
-
+    <div
+      className="desktop relative w-full h-full"
+      style={{
+        background: wallpaper ? `url(${wallpaper}) center/cover no-repeat` : "#000"
+      }}
+    >
       {/* Desktop icons */}
       <div
         style={{
@@ -56,7 +56,7 @@ export default function Desktop() {
         ))}
       </div>
 
-      {/* Open apps rendered on top of wallpaper and icons */}
+      {/* Open apps rendered on top */}
       {openApps.map((app) => (
         <motion.div
           key={app.id}
@@ -84,9 +84,7 @@ export default function Desktop() {
             boxShadow: "0 10px 40px rgba(0,0,0,0.5)"
           }}
         >
-          <div
-            className="titlebar flex justify-between items-center p-1 cursor-grab bg-gray-900"
-          >
+          <div className="titlebar flex justify-between items-center p-1 cursor-grab bg-gray-900">
             <span>{app.name}</span>
             <button className="btn" onClick={() => closeApp(app.id)}>✖</button>
           </div>
