@@ -1,7 +1,8 @@
-// src/system/Desktop.jsx
 import React, { useEffect, useState } from "react";
 import { useSystemStore } from "../store/systemStore";
 import { motion } from "framer-motion";
+// Import the global CSS
+import "../styles/global.css";
 
 export default function Desktop() {
   const { openApp, desktopApps, openApps, closeApp, wallpaper } = useSystemStore();
@@ -68,27 +69,20 @@ export default function Desktop() {
             right: windowSize.width - app.size.w,
             bottom: windowSize.height - app.size.h,
           }}
+          className="window"
           style={{
-            position: "absolute",
             left: app.position.x,
             top: app.position.y,
             width: app.size.w,
             height: app.size.h,
-            zIndex: app.zIndex || 20,
-            background: "#0b1220",
-            border: "1px solid #333",
-            borderRadius: 6,
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
-            boxShadow: "0 10px 40px rgba(0,0,0,0.5)"
+            zIndex: app.zIndex || 20
           }}
         >
-          <div className="titlebar flex justify-between items-center p-1 cursor-grab bg-gray-900">
+          <div className="titlebar">
             <span>{app.name}</span>
             <button className="btn" onClick={() => closeApp(app.id)}>✖</button>
           </div>
-          <div className="content flex-1 overflow-auto p-2">
+          <div className="content">
             {app.component}
           </div>
         </motion.div>
