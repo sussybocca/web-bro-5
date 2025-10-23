@@ -8,7 +8,7 @@ import FullscreenHandler from "./system/FullscreenHandler";
 import { loadDefaultOS } from "./loaders/osLoader";
 import { useSystemStore } from "./store/systemStore";
 import CustomCursor from "./system/CustomCursor";
-import BootScreen from "./components/BootScreen";
+import BootScreen from "./system/BootScreen";
 
 export default function App() {
   const setOS = useSystemStore((s) => s.setOS);
