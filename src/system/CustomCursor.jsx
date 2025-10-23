@@ -32,15 +32,21 @@ export default function CustomCursor() {
     window.addEventListener("mousedown", handleClick);
     window.addEventListener("wheel", handleScroll);
 
-    // Hide default cursor
-    document.body.style.cursor = "none";
+    // Hide default cursor globally
+    const style = document.createElement("style");
+    style.innerHTML = `
+      * {
+        cursor: none !important;
+      }
+    `;
+    document.head.appendChild(style);
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mousedown", handleClick);
       window.removeEventListener("wheel", handleScroll);
 
-      document.body.style.cursor = "default"; // restore default cursor
+      document.head.removeChild(style);
     };
   }, [controls]);
 
