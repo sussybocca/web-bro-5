@@ -1,3 +1,4 @@
+// src/system/BootScreen.jsx
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSpring, animated, config } from "@react-spring/web";
@@ -6,8 +7,8 @@ export default function BootScreen({ onFinish }) {
   const [stageIndex, setStageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [dots, setDots] = useState([0, 1, 2]);
+  const [fadeOut, setFadeOut] = useState(false);
 
-  // Total boot time = ~60s
   const stages = [
     { text: "BIOS Loaded...", duration: 6000 },
     { text: "Checking Devices...", duration: 8000 },
@@ -18,7 +19,6 @@ export default function BootScreen({ onFinish }) {
 
   const totalDuration = stages.reduce((acc, s) => acc + s.duration, 0);
 
-  // Physics-based spring for progress
   const progressSpring = useSpring({
     width: `${progress}%`,
     config: config.gentle,
@@ -26,25 +26,26 @@ export default function BootScreen({ onFinish }) {
 
   useEffect(() => {
     let elapsed = 0;
-    const step = 100; // update every 100 ms
+    const step = 100; // 100ms
     const interval = setInterval(() => {
       elapsed += step;
       const percent = Math.min((elapsed / totalDuration) * 100, 100);
       setProgress(percent);
-      if (elapsed >= totalDuration) {
-        clearInterval(interval);
-      }
+      if (elapsed >= totalDuration) clearInterval(interval);
     }, step);
 
-    // Stage switching synced to each duration
-    let stageTimer = 0;
-    stages.forEach((s, i) => {
-      stageTimer += s.duration;
-      setTimeout(() => setStageIndex(i), stageTimer);
+    // handle stage transitions properly
+    let time = 0;
+    stages.forEach((stage, index) => {
+      time += stage.duration;
+      setTimeout(() => setStageIndex(index), time);
     });
 
-    // Finish after total time + fade buffer
-    const finishTimer = setTimeout(() => onFinish?.(), totalDuration + 1500);
+    // Start fade-out 1.5s before finish
+    setTimeout(() => setFadeOut(true), totalDuration - 1500);
+
+    // Trigger desktop after fade
+    const finishTimer = setTimeout(() => onFinish?.(), totalDuration + 1000);
 
     return () => {
       clearInterval(interval);
@@ -52,7 +53,7 @@ export default function BootScreen({ onFinish }) {
     };
   }, []);
 
-  // Dot bounce loop
+  // Bouncing dots loop
   useEffect(() => {
     const dotInterval = setInterval(() => {
       setDots((prev) => prev.map((d) => (d + 1) % 3));
@@ -64,8 +65,9 @@ export default function BootScreen({ onFinish }) {
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={{ opacity: fadeOut ? 0 : 1 }}
         exit={{ opacity: 0 }}
+        transition={{ duration: fadeOut ? 2 : 1 }}
         className="fixed inset-0 bg-black text-white flex flex-col items-center justify-center font-mono overflow-hidden"
       >
         {/* CRT flicker overlay */}
@@ -75,17 +77,17 @@ export default function BootScreen({ onFinish }) {
           transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
         />
 
-        {/* Logo */}
+        {/* Windows-like logo */}
         <motion.div
           initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
+          animate={{ opacity: fadeOut ? 0 : 1, scale: 1 }}
           transition={{ duration: 1.8, ease: "easeOut" }}
           className="text-7xl mb-10 select-none"
         >
           🪟
         </motion.div>
 
-        {/* Stage text */}
+        {/* Boot text */}
         <motion.div
           key={stages[stageIndex].text}
           initial={{ opacity: 0, y: 10 }}
@@ -125,7 +127,7 @@ export default function BootScreen({ onFinish }) {
         {/* BIOS hint */}
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          animate={{ opacity: fadeOut ? 0 : 1 }}
           transition={{ duration: 1, delay: 0.5 }}
           className="absolute bottom-8 text-sm text-gray-400 tracking-wide"
         >
