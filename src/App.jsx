@@ -6,6 +6,7 @@ import StartMenu from "./system/StartMenu";
 import WindowManager from "./system/WindowManager";
 import FullscreenHandler from "./system/FullscreenHandler";
 import AnimatedWallpaper from "./system/AnimatedWallpaper";
+import BootScreen from "./system/BootScreen"; // new
 import { loadDefaultOS } from "./loaders/osLoader";
 import { useSystemStore } from "./store/systemStore";
 import CustomCursor from "./system/CustomCursor";
@@ -13,6 +14,7 @@ import CustomCursor from "./system/CustomCursor";
 export default function App() {
   const setOS = useSystemStore((s) => s.setOS);
   const [loading, setLoading] = useState(true);
+  const [booting, setBooting] = useState(true); // tracks boot screen
 
   useEffect(() => {
     loadDefaultOS()
@@ -26,6 +28,7 @@ export default function App() {
       });
   }, [setOS]);
 
+  // While OS is loading, show simple loading text
   if (loading)
     return (
       <div className="text-white bg-black flex items-center justify-center h-screen">
@@ -33,7 +36,11 @@ export default function App() {
       </div>
     );
 
-  // Render full desktop environment with animated wallpaper
+  // Show BootScreen first, then hand off to desktop
+  if (booting)
+    return <BootScreen onFinish={() => setBooting(false)} />;
+
+  // Render full desktop environment
   return (
     <FullscreenHandler>
       <AnimatedWallpaper />
