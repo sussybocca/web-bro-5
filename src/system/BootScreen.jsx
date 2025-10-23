@@ -2,12 +2,14 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSpring, animated, config } from "@react-spring/web";
+import WindowManager from "./WindowManager";
 
-export default function BootScreen({ onFinish }) {
+export default function BootScreen() {
   const [stageIndex, setStageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [dots, setDots] = useState([0, 1, 2]);
   const [fadeOut, setFadeOut] = useState(false);
+  const [bootComplete, setBootComplete] = useState(false);
 
   const stages = [
     { text: "BIOS Loaded...", duration: 6000 },
@@ -34,7 +36,7 @@ export default function BootScreen({ onFinish }) {
       if (elapsed >= totalDuration) clearInterval(interval);
     }, step);
 
-    // handle stage transitions properly
+    // Stage transitions
     let time = 0;
     stages.forEach((stage, index) => {
       time += stage.duration;
@@ -44,8 +46,8 @@ export default function BootScreen({ onFinish }) {
     // Start fade-out 1.5s before finish
     setTimeout(() => setFadeOut(true), totalDuration - 1500);
 
-    // Trigger desktop after fade
-    const finishTimer = setTimeout(() => onFinish?.(), totalDuration + 1000);
+    // Boot complete → show WindowManager
+    const finishTimer = setTimeout(() => setBootComplete(true), totalDuration);
 
     return () => {
       clearInterval(interval);
@@ -60,6 +62,9 @@ export default function BootScreen({ onFinish }) {
     }, 500);
     return () => clearInterval(dotInterval);
   }, []);
+
+  // If booting is complete, render WindowManager
+  if (bootComplete) return <WindowManager />;
 
   return (
     <AnimatePresence>
