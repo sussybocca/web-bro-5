@@ -1,7 +1,7 @@
 // src/system/BootScreen.jsx
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSpring, animated, config } from "@react-spring";
+import { useSpring, animated, config } from "react-spring";
 
 export default function BootScreen({ onFinish }) {
   const [stageIndex, setStageIndex] = useState(0);
