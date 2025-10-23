@@ -1,59 +1,58 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSpring, animated, config } from "react-spring";
+import { useSpring, animated, config } from "@react-spring/web";
 
 export default function BootScreen({ onFinish }) {
   const [stageIndex, setStageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [dots, setDots] = useState([0, 1, 2]);
 
+  // Total boot time = ~60s
   const stages = [
-    { text: "BIOS Loaded...", duration: 3000 },
-    { text: "Checking Devices...", duration: 4000 },
-    { text: "Loading Kernel...", duration: 6000 },
-    { text: "Initializing Services...", duration: 7000 },
-    { text: "Starting Desktop Environment...", duration: 9000 },
+    { text: "BIOS Loaded...", duration: 6000 },
+    { text: "Checking Devices...", duration: 8000 },
+    { text: "Loading Kernel...", duration: 12000 },
+    { text: "Initializing Services...", duration: 14000 },
+    { text: "Starting Desktop Environment...", duration: 16000 },
   ];
 
   const totalDuration = stages.reduce((acc, s) => acc + s.duration, 0);
 
-  // Smooth physics-based spring for progress bar
+  // Physics-based spring for progress
   const progressSpring = useSpring({
     width: `${progress}%`,
     config: config.gentle,
   });
 
   useEffect(() => {
-    // Smooth progress increment
+    let elapsed = 0;
+    const step = 100; // update every 100 ms
     const interval = setInterval(() => {
-      setProgress((p) => Math.min(p + 0.2, 100));
-    }, totalDuration / 500);
-
-    // Change boot stages
-    let currentStage = 0;
-    const stageTimer = setInterval(() => {
-      currentStage++;
-      if (currentStage < stages.length) {
-        setStageIndex(currentStage);
-      } else {
-        clearInterval(stageTimer);
+      elapsed += step;
+      const percent = Math.min((elapsed / totalDuration) * 100, 100);
+      setProgress(percent);
+      if (elapsed >= totalDuration) {
+        clearInterval(interval);
       }
-    }, stages[stageIndex].duration);
+    }, step);
 
-    // Boot completion
-    const finishTimer = setTimeout(() => {
-      clearInterval(interval);
-      onFinish?.();
-    }, totalDuration + 2000);
+    // Stage switching synced to each duration
+    let stageTimer = 0;
+    stages.forEach((s, i) => {
+      stageTimer += s.duration;
+      setTimeout(() => setStageIndex(i), stageTimer);
+    });
+
+    // Finish after total time + fade buffer
+    const finishTimer = setTimeout(() => onFinish?.(), totalDuration + 1500);
 
     return () => {
       clearInterval(interval);
-      clearInterval(stageTimer);
       clearTimeout(finishTimer);
     };
   }, []);
 
-  // Boot dots bouncing animation
+  // Dot bounce loop
   useEffect(() => {
     const dotInterval = setInterval(() => {
       setDots((prev) => prev.map((d) => (d + 1) % 3));
@@ -69,16 +68,14 @@ export default function BootScreen({ onFinish }) {
         exit={{ opacity: 0 }}
         className="fixed inset-0 bg-black text-white flex flex-col items-center justify-center font-mono overflow-hidden"
       >
-        {/* Subtle CRT-style flicker glow */}
+        {/* CRT flicker overlay */}
         <motion.div
           className="absolute inset-0 bg-white opacity-5 pointer-events-none"
-          animate={{
-            opacity: [0.03, 0.06, 0.03, 0.05, 0.04],
-          }}
+          animate={{ opacity: [0.03, 0.06, 0.04, 0.05, 0.03] }}
           transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
         />
 
-        {/* Windows-like logo */}
+        {/* Logo */}
         <motion.div
           initial={{ opacity: 0, scale: 0.7 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -88,7 +85,7 @@ export default function BootScreen({ onFinish }) {
           🪟
         </motion.div>
 
-        {/* Boot text */}
+        {/* Stage text */}
         <motion.div
           key={stages[stageIndex].text}
           initial={{ opacity: 0, y: 10 }}
@@ -100,15 +97,12 @@ export default function BootScreen({ onFinish }) {
           {stages[stageIndex].text}
         </motion.div>
 
-        {/* Animated progress bar */}
+        {/* Progress bar */}
         <div className="w-3/4 h-2 bg-gray-800 rounded overflow-hidden mb-6 shadow-inner">
-          <animated.div
-            style={progressSpring}
-            className="h-2 bg-blue-500"
-          />
+          <animated.div style={progressSpring} className="h-2 bg-blue-500" />
         </div>
 
-        {/* Boot dots (like Windows loading) */}
+        {/* Boot dots */}
         <div className="mt-2 flex space-x-3">
           {dots.map((d, i) => (
             <motion.div
@@ -128,7 +122,7 @@ export default function BootScreen({ onFinish }) {
           ))}
         </div>
 
-        {/* Bottom BIOS text */}
+        {/* BIOS hint */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
