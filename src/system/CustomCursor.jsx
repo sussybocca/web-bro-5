@@ -1,90 +1,94 @@
-// src/components/CustomCursor.jsx
+// src/system/CustomCursor.jsx
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function CustomCursor({ emoji = "🖱️" }) {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isVisible, setIsVisible] = useState(true);
-  const [isClicking, setIsClicking] = useState(false);
+const emojis = ["🖱️", "✨", "🔥", "💻", "🌟"]; // Emojis for cursor
 
+export default function CustomCursor() {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [clickAnim, setClickAnim] = useState(false);
+  const [scrollAnim, setScrollAnim] = useState(false);
+  const [emoji, setEmoji] = useState("🖱️");
+
+  // Track mouse movement
   useEffect(() => {
-    const moveCursor = (e) => {
+    const handleMouseMove = (e) => {
       setPosition({ x: e.clientX, y: e.clientY });
+      // Randomly change emoji every movement for fun
+      if (Math.random() > 0.95) {
+        setEmoji(emojis[Math.floor(Math.random() * emojis.length)]);
+      }
     };
 
-    const handleMouseDown = () => setIsClicking(true);
-    const handleMouseUp = () => setIsClicking(false);
-    const hideCursor = () => setIsVisible(false);
-    const showCursor = () => setIsVisible(true);
+    const handleClick = () => {
+      setClickAnim(true);
+      setTimeout(() => setClickAnim(false), 300);
+      // Change emoji on click
+      setEmoji(emojis[Math.floor(Math.random() * emojis.length)]);
+    };
 
-    window.addEventListener("mousemove", moveCursor);
-    window.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
-    window.addEventListener("mouseenter", showCursor);
-    window.addEventListener("mouseleave", hideCursor);
+    const handleScroll = () => {
+      setScrollAnim(true);
+      setTimeout(() => setScrollAnim(false), 500);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousedown", handleClick);
+    window.addEventListener("wheel", handleScroll);
 
     return () => {
-      window.removeEventListener("mousemove", moveCursor);
-      window.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
-      window.removeEventListener("mouseenter", showCursor);
-      window.removeEventListener("mouseleave", hideCursor);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousedown", handleClick);
+      window.removeEventListener("wheel", handleScroll);
     };
   }, []);
 
-  return (
-    <>
-      {/* Hide default cursor globally */}
-      <style>{`body, * { cursor: none !important; }`}</style>
+  // Movement animations
+  const movementVariants = [
+    { scale: 1, rotate: 0 },
+    { scale: 1.2, rotate: -5 },
+    { scale: 0.9, rotate: 5 },
+    { scale: 1, rotate: 10 },
+    { scale: 1, rotate: -10 },
+  ];
 
+  // Click animations
+  const clickVariants = [
+    { scale: 0.8, rotate: 0, backgroundColor: "#4ade80" },
+    { scale: 1.2, rotate: 360, backgroundColor: "#facc15" },
+    { scale: 1, rotate: 45, backgroundColor: "#f87171" },
+    { scale: 1.3, rotate: -45, backgroundColor: "#38bdf8" },
+    { scale: 0.9, rotate: 0, backgroundColor: "#a78bfa" },
+  ];
+
+  // Scroll animations
+  const scrollVariants = [
+    { scale: 1, rotate: 15 },
+    { scale: 1.1, rotate: -15 },
+    { scale: 0.95, rotate: 20 },
+    { scale: 1, rotate: -20 },
+  ];
+
+  return (
+    <AnimatePresence>
       <motion.div
+        className="fixed pointer-events-none w-10 h-10 rounded-full z-50 flex items-center justify-center text-lg"
         style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: 32,
-          height: 32,
-          fontSize: 28,
-          pointerEvents: "none",
-          zIndex: 9999,
-          display: isVisible ? "flex" : "none",
-          alignItems: "center",
-          justifyContent: "center",
+          left: position.x - 20,
+          top: position.y - 20,
+          backgroundColor: "rgba(255,255,255,0.1)",
         }}
-        animate={{
-          x: position.x - 16,
-          y: position.y - 16,
-          scale: isClicking ? 0.7 : 1, // shrink cursor on click
-          rotate: isClicking ? 20 : 0, // optional rotation for fun
-        }}
-        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        animate={
+          clickAnim
+            ? clickVariants[Math.floor(Math.random() * clickVariants.length)]
+            : scrollAnim
+            ? scrollVariants[Math.floor(Math.random() * scrollVariants.length)]
+            : movementVariants[Math.floor(Math.random() * movementVariants.length)]
+        }
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
         {emoji}
       </motion.div>
-
-      {/* Optional ripple effect */}
-      <AnimatePresence>
-        {isClicking && (
-          <motion.div
-            key="ripple"
-            initial={{ opacity: 0.8, scale: 0 }}
-            animate={{ opacity: 0, scale: 2 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            style={{
-              position: "fixed",
-              top: position.y - 16,
-              left: position.x - 16,
-              width: 32,
-              height: 32,
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.3)",
-              pointerEvents: "none",
-              zIndex: 9998,
-            }}
-          />
-        )}
-      </AnimatePresence>
-    </>
+    </AnimatePresence>
   );
 }
